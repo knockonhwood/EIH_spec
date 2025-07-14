@@ -134,7 +134,7 @@ class FileOpeningApp(MDApp):
         return temp_filename
     
     def pixels_2_green_nomalizer(self):
-        red, green=self.extract_red_green_intensities(self.pixels)
+        red, green, =self.extract_red_green_intensities(self.pixels)
         norm_data=self.normalizer_funct(red,green)
         self.transformed_img=self.create_color_map_img(norm_data)
         self.save_transformed()
@@ -145,11 +145,13 @@ class FileOpeningApp(MDApp):
             raise ValueError("Input must be a numpy array of shape (height, width, 4) with dtype uint8")
         red_intensities = pixels[:, :, 0]
         green_intensities = pixels[:, :, 1]
+        # blue_intensities = pixels[:, :, 2]
+        # alpha=pixels[:, :, 3]
         return red_intensities, green_intensities
     
     def create_color_map_img(self, norm_data):
         norm = Normalize(vmin=norm_data.min(), vmax=norm_data.max())
-        colormap = plt.get_cmap('rainbow')
+        colormap = plt.get_cmap('YlOrRd')
         scalar_mappable = ScalarMappable(norm=norm, cmap=colormap)
         rgba_image = scalar_mappable.to_rgba(norm_data)
         rgba_image = (rgba_image * 255).astype(np.uint8)
@@ -157,10 +159,9 @@ class FileOpeningApp(MDApp):
 
     def normalizer_funct(self,red,green):
         with np.errstate(divide='ignore'):
-            denominator=np.mean(red)+np.mean(green)
+            denominator1=red
             numerator=red-green
-            norm_data = numerator / denominator
-            # norm_data[red == 0] = 0
+            norm_data = numerator / denominator1
         return norm_data
 
     def save_transformed(self, *args):  # Modified to accept additional arguments
